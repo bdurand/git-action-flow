@@ -43,7 +43,7 @@ jobs:
                   buildLabelFound = true
                   return
                 }
-              })
+              }
               if (buildLabelFound) {
                 return "true"
               }
