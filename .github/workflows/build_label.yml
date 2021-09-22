@@ -19,7 +19,7 @@ jobs:
           script: |
             console.log("ref " + context.ref)
             console.log("context")
-            Object.keys(context.issue).forEach(function (key) {
+            Object.keys(context).forEach(function (key) {
                 console.log(key + ": " + context.issue[key])
             })
             console.log("context.issue")
