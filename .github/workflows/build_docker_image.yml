@@ -67,13 +67,7 @@ jobs:
         if: steps.buildable.outputs.result == 'true'
         run: |
           cat $GITHUB_EVENT_PATH
-          if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-            COMMIT_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
-          else
-            COMMIT_SHA=$GITHUB_SHA
-          fi
-          COMMIT_SHA=${COMMIT_SHA::8}
-          echo "::set-output name=tags::${COMMIT_SHA::8}"
+          echo "::set-output name=tags::${bin/docker_build_tags}"
       - name: Docker Build
         id: docker_build
         if: steps.buildable.outputs.result == 'true'
@@ -95,11 +89,15 @@ jobs:
         if: steps.buildable.outputs.result == 'true'
         run: |
           rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          if [ -d /tmp/.buildx-cache-new ]; then
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          else
+            echo "/tmp/.buildx-cache-new does not exist"
+          fi
 
       # Update the pull request with a comment including the Docker image tag.
       - name: Add Docker image comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.buildable.outputs.result == 'true'
         uses: actions/github-script@v4
         env:
           DOCKER_TAG: ${{ steps.build.outputs.tag }}
