@@ -44,7 +44,7 @@ jobs:
                 return "true"
               }
             } else {
-              if (context.ref.match(/^refs\/head\/(main|master|sprint|release)$/) || context.ref.match(/^refs\/tags\/v/)) {
+              if (context.ref.match(/^refs\/heads\/(main|master|sprint|release)$/) || context.ref.match(/^refs\/tags\/v/)) {
                 console.log("Buildable reference " + context.ref)
                 return "true"
               }
