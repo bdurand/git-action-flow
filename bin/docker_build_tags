@@ -2,7 +2,6 @@
 
 set -o errexit
 set -o pipefail
-set -o xtrace
 
 if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
   # Get the actual commit, not the merge commit used on pull requests
