@@ -33,10 +33,10 @@ jobs:
         run: echo "::set-output name=result::true"
       - name: Build
         id: build
-        if: steps.check_for_build_image.outputs.result == "true"
+        if: steps.buildable.outputs.result == 'true'
         run: echo "Run build"
       - name: Remove Build Image Tag
-        if: steps.check_for_build_image.outputs.result == "true"
+        if: steps.check_for_build_image.outputs.result == 'true'
         uses: actions/github-script@v4
         with:
           script: |
