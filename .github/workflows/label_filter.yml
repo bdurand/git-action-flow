@@ -1,9 +1,16 @@
 name: Label Filter
 on:
+  push:
+    branches:
+      - main
+      - master
+      - sprint
+      - release
+    tags:
+      - v*
   pull_request:
     types:
       - labeled
-      - unlabeled
       - synchronize
       - opened
       - reopened
@@ -12,11 +19,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Label
-        if: contains(github.event.pull_request.labels.*.name, 'Build Image')
-        run: |
-          echo Has Label
-      - name: Check Not Label
-        if: "!contains(github.event.pull_request.labels.*.name, 'Build Image')"
-        run: |
-          echo No Label
+      - name: Buildable Label
+        id: buildable_label
+        if: ["Build Image", "QA Ready"].any(label => { contains(github.event.pull_request.labels.*.name, label) })
+        run: echo "::set-output name=result::true"
+      - name: Buildable
+        id: buildable
+        if: event.name === "push" || step.buildable.outputs.result === "true"
+        run: echo "::set-output name=result::true"
+      - name: Build
+        id: build
+        if: step.buildable.outputs.result === "true"
+        run: echo "Run build"
+      - name: Remove Build Image Tag
+        if: step.buildable_label.outputs.result === "true"
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: "Build Image"
+            })
+            console.log('Remove "Build Image" label')
