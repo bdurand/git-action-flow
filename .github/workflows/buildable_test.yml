@@ -24,27 +24,32 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            if (context.ref.match(/^\/refs\/head\/(master|sprint|release)$/) || context.ref.match(/^\/refs\/tags\/v/)) {
-              console.log("Buildable reference " + context.ref)
-              return "true"
-            }
-            let buildLabelFound = false
-            github.issues.listLabelsOnIssue({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100
-            }).then(labels => {
-              console.log(labels)
-              labels.forEach((label) => {
-                if (label.name === "QA Ready" || label.name === "Build Image") {
-                  buildLabelFound = true
-                  return
-                }
+            console.log(context.ref, context.issue.number)
+            if (context.issue.number) {
+              let buildLabelFound = false
+              github.issues.listLabelsOnIssue({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100
+              }).then(labels => {
+                console.log(labels)
+                labels.forEach((label) => {
+                  if (label.name === "QA Ready" || label.name === "Build Image") {
+                    console.log("Buildable label " + label.name)
+                    buildLabelFound = true
+                    return
+                  }
+                })
               })
-            })
-            if (buildLabelFound) {
-              return "true"
+              if (buildLabelFound) {
+                return "true"
+              }
             } else {
-              return "false"
+              if (context.ref.match(/^\/refs\/head\/(master|sprint|release)$/) || context.ref.match(/^\/refs\/tags\/v/)) {
+                console.log("Buildable reference " + context.ref)
+                return "true"
+              }
             }
+            console.log("Docker image will not be built")
+            return null
