@@ -39,19 +39,26 @@ jobs:
           export BUILD_TAG=${GITHUB_SHA::8}
       - name: "Comment"
         if: github.event_name == 'pull_request'
+        run: echo "comment"
+        # uses: actions/github-script@v4
+        # with:
+        #   script: |
+        #     github.issues.createComment({
+        #       owner: context.repo.owner,
+        #       repo: context.repo.repo,
+        #       issue_number: context.issue.number,
+        #       body: ":computer: Docker image built with tag:"
+        #     })
+        #     console.log('Add build comment to pull request " + context.issue.number)
+      - name: Remove Build Image Tag
+        if: steps.check_for_build_image.outputs.result == 'truex'
         uses: actions/github-script@v4
         with:
           script: |
-            console.log('Add build comment to pull request " + context.issue.number)
-      # - name: Remove Build Image Tag
-      #   if: steps.check_for_build_image.outputs.result == 'true'
-      #   uses: actions/github-script@v4
-      #   with:
-      #     script: |
-      #       github.issues.removeLabel({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         issue_number: context.issue.number,
-      #         name: "Build Image"
-      #       })
-      #       console.log('Remove "Build Image" label')
+            github.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: "Build Image"
+            })
+            console.log('Remove "Build Image" label')
