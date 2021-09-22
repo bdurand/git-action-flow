@@ -2,6 +2,7 @@ name: Buildable Test
 on:
   push:
     branches:
+      - main
       - master
       - sprint
       - release
@@ -11,7 +12,7 @@ on:
     types:
       - labeled
 
-concurrency: build_docker_image-${{ github.ref }}
+# concurrency: build_docker_image-${{ github.ref }}
 
 jobs:
   check_for_build_label:
