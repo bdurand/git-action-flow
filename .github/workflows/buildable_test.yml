@@ -22,9 +22,6 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            console.log(context.event)
-            console.log(context.event.pull_request)
-            Object.keys(context.event.pull_request.labels).forEach(lb => { console.log(label)})
             const branchMatcher = /^refs\/heads\/(main|master|sprint|release)$/
             const branchMatch = context.ref.match(branchMatcher)
             if (branchMatch) {
