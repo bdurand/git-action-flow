@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Label
-        if: contains(github.event.pull_request.labels.*.name, 'bug')
+        if: contains(github.event.pull_request.labels.*.name, 'Build Image')
         run: |
           echo Has Label
-      - name: Check Label
-        if: "!contains(github.event.pull_request.labels.*.name, 'bug')"
+      - name: Check Not Label
+        if: "!contains(github.event.pull_request.labels.*.name, 'Build Image')"
         run: |
           echo No Label
