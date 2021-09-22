@@ -1,4 +1,4 @@
-name: Buildable Test
+name: Invoked Workflow
 on:
   push:
     branches:
@@ -8,9 +8,9 @@ on:
       - release
     tags:
       - v*
-  workflow_run:
-    workflows: ["Build Label"]
-    types: [completed]
+  # workflow_run:
+  #   workflows: ["Build Label"]
+  #   types: [completed]
 
 jobs:
   build:
