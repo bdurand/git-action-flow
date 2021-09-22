@@ -20,23 +20,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check For Build Image Label
-        id: label_build_image
+        id: check_for_build_image
         if: contains(github.event.pull_request.labels.*.name, 'Build Image')
         run: echo "::set-output name=result::true"
       - name: Check For QA Ready Label
-        id: label_qa_ready
+        id: check_for_qa_ready
         if: contains(github.event.pull_request.labels.*.name, 'QA Ready')
         run: echo "::set-output name=result::true"
       - name: Buildable
         id: buildable
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || steps.check_for_build_image.outputs.result == 'true' || steps.check_for_build_image.outputs.result == 'true'
         run: echo "::set-output name=result::true"
       - name: Build
         id: build
-        if: ${{ step.buildable.outputs.result == "true" }}
+        if: steps.check_for_build_image.outputs.result == "true"
         run: echo "Run build"
       - name: Remove Build Image Tag
-        if: ${{ step.label_build_image.outputs.result == "true" }}
+        if: steps.check_for_build_image.outputs.result == "true"
         uses: actions/github-script@v4
         with:
           script: |
