@@ -5,17 +5,15 @@ on:
       - labeled
       - synchronize
 
-outputs:
-  build_label: ${{ jobs.check_for_build_label.steps.check_if_build_label.outputs.result }}
-
 jobs:
   check_for_build_label:
     name: Check For Build Label
     runs-on: ubuntu-latest
     outputs:
-      build_label: ${{ steps.check_if_build_label.outputs.result }}
+      build_label: ${{ steps.check_labels.outputs.result }}
     steps:
-      - id: check_if_build_label
+      - name: Check Labels
+        id: check_labels
         uses: actions/github-script@v4
         with:
           script: |
@@ -44,3 +42,7 @@ jobs:
               console.log("Build label not found")
               return "false"
             }
+      - name: Set Workflow Output
+        id: set_output
+        run: |-
+          echo "::set-output name=build_label::${{ steps.check_labels.outputs.result }}"
