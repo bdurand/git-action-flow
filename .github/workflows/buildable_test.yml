@@ -23,7 +23,7 @@ jobs:
         with:
           script: |
             const branchMatcher = /^refs\/heads\/(main|master|sprint|release)$/
-            const branchMatch = context.ref.match(branchMatcher))
+            const branchMatch = context.ref.match(branchMatcher)
             if (branchMatch) {
               console.log("Buildable branch " + branchMatch[1])
               return "true"
