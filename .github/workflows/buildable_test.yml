@@ -24,7 +24,11 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const labels = github.issues.getLabels({
+            if (context.ref.match(/^\/refs\/head\/(master|sprint|release)$/) || context.ref.match(/^\/refs\/tags\/v/)) {
+              console.log("Buildable reference " + context.ref)
+              return "true"
+            }
+            const labels = github.issues.listLabelsOnIssue({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
