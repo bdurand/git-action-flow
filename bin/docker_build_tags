@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+cat $GITHUB_EVENT_PATH
+if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+  COMMIT_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+  REF_NAME = "pr-"
+else
+  COMMIT_SHA=$GITHUB_SHA
+fi
+
+echo "${COMMIT_SHA::8},${REF_NAME}"
