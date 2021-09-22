@@ -29,7 +29,7 @@ jobs:
         run: echo "::set-output name=result::true"
       - name: Buildable
         id: buildable
-        if: ${{ github.event_name == 'push' || step.label_build_image.outputs.result == 'true' || step.label_qa_ready.outputs.result == 'true' }}
+        if: github.event_name == 'push'
         run: echo "::set-output name=result::true"
       - name: Build
         id: build
