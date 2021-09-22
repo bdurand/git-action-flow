@@ -43,7 +43,7 @@ jobs:
         with:
           script: |
             h = context
-            Object.keys(h).forEach(k => { console.log("k: " + h[h]) })
+            Object.keys(h).forEach(k => { console.log(k + ": " + h[k]) })
             github.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
