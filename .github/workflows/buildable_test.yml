@@ -23,12 +23,14 @@ jobs:
         with:
           script: |
             const branchMatcher = /^refs\/heads\/(main|master|sprint|release)$/
-            if (const branchMatch = context.ref.match(branchMatcher) {
+            const branchMatch = context.ref.match(branchMatcher))
+            if (branchMatch) {
               console.log("Buildable branch " + branchMatch[1])
               return "true"
             }
             const tagMatcher = /^refs\/tags\/v/
-            if (const tagMatch = context.ref.match(branchMatcher) {
+            const tagMatch = context.ref.match(branchMatcher)
+            if (tagMatch) {
               console.log("Buildable tag " + tagMatch[1])
               return "true"
             }
