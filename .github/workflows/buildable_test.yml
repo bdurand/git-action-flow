@@ -22,8 +22,12 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            console.log(context.ref, context.issue.number)
-            if (context.issue.number) {
+            console.log("ref " + context.ref)
+            console.log("issue " + context.issue.number)
+            if (context.ref.match(/^refs\/heads\/(main|master|sprint|release)$/) || context.ref.match(/^refs\/tags\/v/)) {
+              console.log("Buildable reference " + context.ref)
+              return "true"
+            } else if (context.issue.number) {
               let buildLabelFound = false
               github.issues.listLabelsOnIssue({
                 issue_number: context.issue.number,
@@ -41,11 +45,6 @@ jobs:
                 })
               })
               if (buildLabelFound) {
-                return "true"
-              }
-            } else {
-              if (context.ref.match(/^refs\/heads\/(main|master|sprint|release)$/) || context.ref.match(/^refs\/tags\/v/)) {
-                console.log("Buildable reference " + context.ref)
                 return "true"
               }
             }
