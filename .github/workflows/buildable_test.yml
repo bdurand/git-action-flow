@@ -29,21 +29,20 @@ jobs:
               console.log("Buildable reference " + context.ref)
               return "true"
             } else if (context.issue.number) {
-              let buildLabelFound = false
-              github.issues.listLabelsOnIssue({
+              const labels = await github.issues.listLabelsOnIssue({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 per_page: 100
-              }).then(labels => {
-                console.log(labels)
-                labels.forEach((label) => {
-                  if (label.name === "QA Ready" || label.name === "Build Image") {
-                    console.log("Buildable label " + label.name)
-                    buildLabelFound = true
-                    return
-                  }
-                })
+              })
+              let buildLabelFound = false
+              console.log(labels)
+              labels.forEach((label) => {
+                if (label.name === "QA Ready" || label.name === "Build Image") {
+                  console.log("Buildable label " + label.name)
+                  buildLabelFound = true
+                  return
+                }
               })
               if (buildLabelFound) {
                 return "true"
