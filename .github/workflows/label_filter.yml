@@ -25,14 +25,14 @@ jobs:
         run: echo "::set-output name=result::true"
       - name: Buildable
         id: buildable
-        if: github.event.name == "push" || step.buildable.outputs.result == "true"
+        if: ${{ github.event_name == "push" || step.buildable.outputs.result == "true" }}
         run: echo "::set-output name=result::true"
       - name: Build
         id: build
-        if: step.buildable.outputs.result == "true"
+        if: ${{ step.buildable.outputs.result == "true" }}
         run: echo "Run build"
       - name: Remove Build Image Tag
-        if: step.buildable_label.outputs.result == "true"
+        if: ${{ step.buildable_label.outputs.result == "true" }}
         uses: actions/github-script@v4
         with:
           script: |
