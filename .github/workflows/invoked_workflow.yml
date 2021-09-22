@@ -16,7 +16,7 @@ jobs:
   build:
     name: Check For Build Label
     runs-on: ubuntu-latest
-    if: ${{ !github.event.workflow_run || github.event.workflow_run.build_label === "true" }}
+    # if: ${{ !github.event.workflow_run || github.event.workflow_run.build_label === "true" }}
     steps:
       - name: Placeholder
         run: |
