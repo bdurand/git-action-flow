@@ -34,6 +34,7 @@ jobs:
               repo: context.repo.repo,
               per_page: 100
             })
+            console.log(labels)
             let buildLabelFound = false
             labels.forEach((label) => {
               if (label.name === "QA Ready" || label.name === "Build Image") {
