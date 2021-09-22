@@ -66,22 +66,14 @@ jobs:
         id: set_docker_tags
         if: steps.buildable.outputs.result == 'true'
         run: |
-          cat $GITHUB_EVENT_PATH
           echo "::set-output name=tags::${bin/docker_build_tags}"
       - name: Docker Build
         id: docker_build
         if: steps.buildable.outputs.result == 'true'
         env:
-          tags: ${{ steps.set_docker_tags.outputs.tags }}
+          image_tags: ${{ steps.set_docker_tags.outputs.tags }}
         run: |
-          echo "Run build"
-          if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-            COMMIT_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
-          else
-            COMMIT_SHA=$GITHUB_SHA
-          fi
-          COMMIT_SHA=${COMMIT_SHA::8}
-          echo "::set-output name=tag::${COMMIT_SHA::8}"
+          echo "::set-output name=tag::${image_tags}"
       # This is necessary so the cache does not grow until it hits GitHub's limit of 5GB.
       # https://github.com/docker/build-push-action/issues/252
       # https://github.com/moby/buildkit/issues/1896
