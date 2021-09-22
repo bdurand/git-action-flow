@@ -57,8 +57,6 @@ jobs:
               console.log("Build label not found")
               return null
             }
-      steps:
-        - name: Placeholder
-          uses: actions/github-script@v4
-          script: |
-            echo "Placeholder"
+      - name: Placeholder
+        run: |
+          echo "Placeholder"

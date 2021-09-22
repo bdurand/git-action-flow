@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Label
-      - if: contains(github.event.pull_request.labels.*.name, 'bug')
-      - run: |
-          echo Success
+        if: contains(github.event.pull_request.labels.*.name, 'bug')
+        run: |
+          echo Has Label
+      - name: Check Label
+        if: "!contains(github.event.pull_request.labels.*.name, 'bug')"
+        run: |
+          echo No Label
