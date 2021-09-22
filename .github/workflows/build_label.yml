@@ -17,15 +17,6 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            console.log("ref " + context.ref)
-            console.log("context")
-            Object.keys(context).forEach(function (key) {
-                console.log(key + ": " + context[key])
-            })
-            console.log("context.issue")
-            Object.keys(context.issue).forEach(function (key) {
-                console.log(key + ": " + context.issue[key])
-            })
             const labels = await github.issues.listLabelsOnIssue({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -33,7 +24,6 @@ jobs:
               per_page: 100
             })
             let buildLabel = null
-            console.log(labels)
             labels.data.forEach(label => {
               if (label.name === "QA Ready" || label.name === "Build Image") {
                 buildLabel = label.name
@@ -50,4 +40,5 @@ jobs:
       - name: Set Workflow Output
         id: set_output
         run: |-
+          ls -la
           echo "::set-output name=build_label::${{ steps.check_labels.outputs.result }}"
