@@ -22,17 +22,20 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
+            console.log(context.event)
+            console.log(context.event.pull_request)
+            Object.keys(context.event.pull_request.labels).forEach(lb => { console.log(label)})
             const branchMatcher = /^refs\/heads\/(main|master|sprint|release)$/
             const branchMatch = context.ref.match(branchMatcher)
             if (branchMatch) {
               console.log("Buildable branch " + branchMatch[1])
-              return "true"
+              return "branch/" + branchMatch[1]
             }
             const tagMatcher = /^refs\/tags\/v/
             const tagMatch = context.ref.match(branchMatcher)
             if (tagMatch) {
               console.log("Buildable tag " + tagMatch[1])
-              return "true"
+              return "tag/" + tagMatch[1]
             }
             const labels = await github.issues.listLabelsOnIssue({
               issue_number: context.issue.number,
@@ -49,8 +52,13 @@ jobs:
             })
             if (buildLabel) {
               console.log("Build label found: " + buildLabel)
-              return "true"
+              return "label/" + buildLabel
             } else {
               console.log("Build label not found")
-              return "false"
+              return null
             }
+    steps:
+      - name: Placeholder
+        uses: actions/github-script@v4
+        script: |
+          echo "Placeholder"
