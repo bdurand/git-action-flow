@@ -36,6 +36,8 @@ jobs:
         if: steps.buildable.outputs.result == 'true'
         run: |
           echo "Run build"
+          echo $GITHUB_SHA
+          echo ${GITHUB_SHA::8}
           echo "::set-output name=tag::${GITHUB_SHA::8}"
       - name: "Comment"
         if: github.event_name == 'pull_request'
@@ -44,8 +46,6 @@ jobs:
           DOCKER_TAG: ${{ steps.build.outputs.tag }}
         with:
           script: |
-            h = context
-            Object.keys(h).forEach(k => { console.log(k + ": " + h[k]) })
             github.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
