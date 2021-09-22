@@ -1,22 +1,37 @@
-name: Build Label
+name: Buildable Test
 on:
+  push:
+    branches:
+      - main
+      - master
+      - sprint
+      - release
+    tags:
+      - v*
   pull_request:
     types:
       - labeled
       - synchronize
 
 jobs:
-  check_for_build_label:
-    name: Check For Build Label
+  build:
     runs-on: ubuntu-latest
-    outputs:
-      build_label: ${{ steps.check_labels.outputs.result }}
     steps:
-      - name: Check Labels
-        id: check_labels
+      - name: Check If Buildable
+        id: buildable_check
         uses: actions/github-script@v4
         with:
           script: |
+            const branchMatcher = /^refs\/heads\/(main|master|sprint|release)$/
+            if (const branchMatch = context.ref.match(branchMatcher) {
+              console.log("Buildable branch " + branchMatch[1])
+              return "true"
+            }
+            const tagMatcher = /^refs\/tags\/v/
+            if (const tagMatch = context.ref.match(branchMatcher) {
+              console.log("Buildable tag " + tagMatch[1])
+              return "true"
+            }
             const labels = await github.issues.listLabelsOnIssue({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -37,8 +52,3 @@ jobs:
               console.log("Build label not found")
               return "false"
             }
-      - name: Set Workflow Output
-        id: set_output
-        run: |-
-          ls -la
-          echo "::set-output name=build_label::${{ steps.check_labels.outputs.result }}"
