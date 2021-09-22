@@ -37,7 +37,7 @@ jobs:
               })
               let buildLabelFound = false
               console.log(labels)
-              labels.forEach((label) => {
+              for (const label of labels) {
                 if (label.name === "QA Ready" || label.name === "Build Image") {
                   console.log("Buildable label " + label.name)
                   buildLabelFound = true
