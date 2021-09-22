@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Buildable Label
         id: buildable_label
-        if: ["Build Image", "QA Ready"].any(label => { contains(github.event.pull_request.labels.*.name, label) })
+        # if: ["Build Image", "QA Ready"].any(label => { contains(github.event.pull_request.labels.*.name, label) })
         run: echo "::set-output name=result::true"
       - name: Buildable
         id: buildable
