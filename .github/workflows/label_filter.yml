@@ -36,9 +36,13 @@ jobs:
         if: steps.buildable.outputs.result == 'true'
         run: |
           echo "Run build"
-          echo $GITHUB_SHA
-          echo ${GITHUB_SHA::8}
-          echo "::set-output name=tag::${GITHUB_SHA::8}"
+          if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+            COMMIT_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+          else
+            COMMIT_SHA=$GITHUB_SHA
+          fi
+          COMMIT_SHA=${COMMIT_SHA::8}
+          echo "::set-output name=tag::${COMMIT_SHA::8}"
       - name: "Comment"
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v4
