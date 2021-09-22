@@ -1,0 +1,17 @@
+name: Buildable Test
+on:
+  push:
+    branches:
+      - main
+      - master
+      - sprint
+      - release
+    tags:
+      - v*
+    workflow_run:
+      workflows: ["Build Label"]
+      types: [completed]
+
+jobs:
+  build:
+    if: ${{ !github.event.workflow_run || github.event.workflow_run.build_label === "true" }}
