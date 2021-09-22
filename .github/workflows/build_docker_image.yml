@@ -1,4 +1,4 @@
-name: Label Filter
+name: Build Docker Image
 on:
   push:
     branches:
@@ -78,7 +78,7 @@ jobs:
         id: docker_build
         if: steps.buildable.outputs.result == 'true'
         env:
-          tags: ${{ steps.set_docker_tags.outputs.tags }},pr-${{  }}
+          tags: ${{ steps.set_docker_tags.outputs.tags }}
         run: |
           echo "Run build"
           if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
