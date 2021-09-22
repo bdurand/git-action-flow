@@ -34,7 +34,9 @@ jobs:
       - name: Build
         id: build
         if: steps.buildable.outputs.result == 'true'
-        run: echo "Run build"
+        run: |
+          echo "Run build"
+          exit 1
       - name: Remove Build Image Tag
         if: steps.check_for_build_image.outputs.result == 'true'
         uses: actions/github-script@v4
