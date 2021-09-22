@@ -34,7 +34,7 @@ jobs:
             labels.forEach((label) => {
               if (label.name === "QA Ready" || label.name === "Build Image") {
                 buildLabelFound = true
-                break
+                return
               }
             })
             if (buildLabelFound) {
