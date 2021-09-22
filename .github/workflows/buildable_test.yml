@@ -12,8 +12,6 @@ on:
     types:
       - labeled
 
-# concurrency: build_docker_image-${{ github.ref }}
-
 jobs:
   check_for_build_label:
     runs-on: ubuntu-latest
@@ -46,7 +44,7 @@ jobs:
                 return "true"
               }
             } else {
-              if (context.ref.match(/^\/refs\/head\/(master|sprint|release)$/) || context.ref.match(/^\/refs\/tags\/v/)) {
+              if (context.ref.match(/^\/refs\/head\/(main|master|sprint|release)$/) || context.ref.match(/^\/refs\/tags\/v/)) {
                 console.log("Buildable reference " + context.ref)
                 return "true"
               }
