@@ -1,0 +1,46 @@
+name: Build Label
+on:
+  pull_request:
+    types:
+      - labeled
+      - synchronize
+
+outputs:
+  build_label: ${{ jobs.check_for_build_label.steps.check_if_build_label.outputs.result }}
+
+jobs:
+  check_for_build_label:
+    name: Check For Build Label
+    runs-on: ubuntu-latest
+    outputs:
+      build_label: ${{ steps.check_if_build_label.outputs.result }}
+    steps:
+      - id: check_if_build_label
+        uses: actions/github-script@v4
+        with:
+          script: |
+            console.log("ref " + context.ref)
+            Object.keys(context.issue).forEach(function (key) {
+                console.log(key + ": " + context.issue[key])
+            })
+            const labels = await github.issues.listLabelsOnIssue({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            })
+            let buildLabel = null
+            console.log(labels)
+            labels.data.forEach(label => {
+              if (label.name === "QA Ready" || label.name === "Build Image") {
+                buildLabel = label.name
+                return
+              }
+            })
+            if (buildLabel) {
+              console.log("Build label found: " + buildLabel)
+              return "true"
+            } else {
+              console.log("Build label not found")
+              return "false"
+            }
