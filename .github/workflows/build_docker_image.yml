@@ -8,7 +8,7 @@ on:
       - release
     tags:
       - v*
-  pull_request:
+  pull_request_target:
     types:
       - labeled
       - synchronize

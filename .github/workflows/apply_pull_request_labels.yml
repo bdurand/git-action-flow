@@ -1,6 +1,6 @@
 name: Apply Pull Request Labels
 on:
-  pull_request:
+  pull_request_target:
     types:
       - synchronize
       - opened
@@ -11,7 +11,40 @@ jobs:
     name: Apply Labels
     runs-on: ubuntu-latest
     steps:
+      - name: Check for changes in db/**/* files
       - uses: actions/labeler@v3
         with:
-          sync-labels: true
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          script: |
+            let page = 1
+            let per_page = 1
+            let changesFound = false
+            while (!changesFound) {
+              const response = await github.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                per_page: per_page,
+                page: page
+              })
+              response.data.forEach(file => {
+                console.log(file.name)
+                if (file.name.startsWith("db/") {
+                  changesFound = true
+                  break
+                }
+              })
+              if (respons.data.size < per_page) {
+                break
+              } else {
+                page += 1
+              }
+            }
+            if (changesFound) {
+              github.issues.addLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: "Build Docker Image"
+              })
+              console.log('Add "Build Docker Image" label')
+            }
