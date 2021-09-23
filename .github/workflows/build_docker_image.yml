@@ -112,7 +112,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: ":computer: Docker image built with tags: `" + process.env.DOCKER_TAG + "`"
+              body: body
             })
 
       # The "Build Docker Image" label on a pull request is used to trigger a one time only build
