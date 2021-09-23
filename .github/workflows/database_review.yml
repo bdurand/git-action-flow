@@ -13,5 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check for changes in db/**/* files
-        run: |
-          git --no-pager diff --name-only master...HEAD
+        uses: actions/github-script@v4
+        with:
+          script: |
+            let page = 1
+            while (true) {
+              files = await github.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                per_page: 1,
+                page: page
+              })
+              console.log(files)
+              break
+            }
