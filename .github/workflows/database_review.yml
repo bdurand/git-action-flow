@@ -12,6 +12,9 @@ jobs:
     name: Check For Database Changes
     runs-on: ubuntu-latest
     steps:
+      - name: GitHub Event
+        run: |
+          cat $GITHUB_EVENT_PATH
       - name: Check for changes in db/**/* files
         uses: actions/github-script@v4
         with:
