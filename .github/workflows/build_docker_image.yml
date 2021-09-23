@@ -18,7 +18,8 @@ on:
 concurrency: build_docker_image-${{ github.ref }}
 
 jobs:
-  build:
+  build_docker_image:
+    name: Build Docker Image If Requested
     runs-on: ubuntu-latest
     steps:
       # Detect if the pull request, branch, or tag should build the docker image.
@@ -34,7 +35,7 @@ jobs:
         run: echo "::set-output name=result::true"
       - name: Buildable
         id: buildable
-        if: github.event_name == 'push' || steps.check_for_build_image.outputs.result == 'true' || steps.check_for_build_image.outputs.result == 'true'
+        if: github.event_name == 'push' || steps.check_for_qa_ready.outputs.result == 'true' || steps.check_for_build_image.outputs.result == 'true'
         run: echo "::set-output name=result::true"
 
       # Login to the ECR docker registry
