@@ -1,0 +1,17 @@
+name: Label Database Changes For Review
+on:
+  pull_request:
+    types:
+      - synchronize
+      - opened
+
+concurrency: build_docker_image-${{ github.ref }}
+
+jobs:
+  build_docker_image:
+    name: Check For Database Changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for changes in db/**/* files
+        run: |
+          git --no-pager diff --name-only master...HEAD
