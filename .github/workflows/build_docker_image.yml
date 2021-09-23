@@ -8,7 +8,7 @@ on:
       - release
     tags:
       - v*
-  pull_request:
+  pull_request_target:
     types:
       - labeled
       - synchronize
@@ -22,6 +22,7 @@ jobs:
     name: Build Docker Image If Requested
     runs-on: ubuntu-latest
     steps:
+      - run: env && cat $GITHUB_EVENT_PATH
       # Detect if the pull request, branch, or tag should build the docker image.
       # The rest of the steps after buildable should be filtered with the expression
       #   if: steps.buildable.outputs.result == 'true'

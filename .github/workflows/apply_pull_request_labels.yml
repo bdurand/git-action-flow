@@ -1,0 +1,16 @@
+name: Apply Pull Request Labels
+on:
+  pull_request:
+    types:
+      - synchronize
+      - opened
+      - reopened
+
+jobs:
+  apply_labels:
+    name: Apply Labels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v3
+        with:
+          sync-labels: true
