@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+
+if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+  # Get the actual commit, not the merge commit used on pull requests
+  COMMIT_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+  REF_TAG="pr-$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.number)"
+else
+  COMMIT_SHA=$GITHUB_SHA
+  REF_TAG=$(echo $GITHUB_REF | sed -E 's/refs\/(heads|tags)\///' | grep -v '/')
+fi
+
+TAGS=${COMMIT_SHA::8}
+if [ "$REF_TAG" != "" ]; then
+  TAGS="${TAGS},${REF_TAG}"
+fi
+echo $TAGS
