@@ -1,0 +1,13 @@
+name: Assign Reviewer Labels
+on:
+  pull_request_target:
+    types:
+      - assigned
+
+jobs:
+  apply_labels:
+    name: Apply Labels
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          cat $GITHUB_EVENT_PATH
