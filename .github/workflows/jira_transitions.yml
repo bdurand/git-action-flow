@@ -13,17 +13,22 @@ jobs:
     name: Transition Jira Task From Labels
     steps:
       - run: cat $GITHUB_EVENT_PATH
+      - name: Find Jira Issue
+        id: find_jira_issue
+        env:
+          search_string: ${{ github.event.pull_request.head.ref }} ${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}
+          patterns: \b(ENG)-([0-9]+)
+        run: |
+          echo $search_string
+          echo $patterns
+          run: echo "::set-output name=issue::ENG-1"
       - name: Login
+        if: steps.find_jira_issue.outputs.issue
         uses: atlassian/gajira-login@v2.0.0
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-      - name: Find Jira Issue
-        id: find_jira_issue
-        uses: atlassian/gajira-find-issue-key@v2.0.2
-        with:
-          string: ${{ github.event.head.ref }} ${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}
       - name: Transition Issue To QA Ready
         if: steps.find_jira_issue.outputs.issue && github.event.action == 'labeled'
         uses: atlassian/gajira-transition@v2.0.2
