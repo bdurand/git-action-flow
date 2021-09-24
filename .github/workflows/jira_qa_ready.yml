@@ -14,14 +14,14 @@ jobs:
     steps:
       - run: cat $GITHUB_EVENT_PATH
       - name: Login
-        uses: atlassian/gajira-login@master
+        uses: atlassian/gajira-login@v2.0.0
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
       - name: Find Jira Issue
         id: find_jira_issue
-        uses: atlassian/gajira-find-issue-key@v2
+        uses: atlassian/gajira-find-issue-key@v2.0.2
         with:
           string: ${{ github.event.ref }}
       - name: Transition Issue To QA Ready
@@ -32,7 +32,7 @@ jobs:
           transition: "Done"
       - name: Transition Issue To In Progress
         if: steps.find_jira_issue.outputs.issue
-        uses: atlassian/gajira-transition@v2
+        uses: atlassian/gajira-transition@v2.0.2
         with:
           issue: ${{ steps.find_jira_issue.outputs.issue }}
           transition: "In Progress"
