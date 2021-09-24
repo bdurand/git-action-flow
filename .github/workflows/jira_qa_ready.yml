@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    if: contains(github.event.pull_request.labels.*.name, 'QA Ready')
+    # if: contains(github.event.pull_request.labels.*.name, 'QA Ready')
     runs-on: ubuntu-latest
     name: Transition Jira Task To QA Ready
     steps:
