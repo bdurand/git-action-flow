@@ -12,10 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Transition Jira Task To QA Ready
     steps:
-      - env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-        run: env
+      - run: cat $GITHUB_EVENT_PATH
       - name: Login
         uses: atlassian/gajira-login@master
         env:
@@ -26,7 +23,7 @@ jobs:
         id: find_jira_issue
         uses: atlassian/gajira-find-issue-key@master
         with:
-          from: branch
+          string: ${{ github.event.ref }}
       - name: Transition Issue To QA Ready
         if: steps.find_jira_issue.outputs.issue && github.event.type == 'labeled'
         uses: atlassian/gajira-transition@master
