@@ -9,6 +9,15 @@ jobs:
     name: Apply Labels
     runs-on: ubuntu-latest
     steps:
-      - name: Assign Labels
-        run: |
-          cat $GITHUB_EVENT_PATH
+      - if: contains(github.event.pull_request.requested_reviewers.*.login, 'R167')
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.addLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: "Database Review"
+            })
+            console.log('Added "Database Review" label')
+
