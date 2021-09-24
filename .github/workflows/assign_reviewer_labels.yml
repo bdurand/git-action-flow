@@ -3,11 +3,13 @@ on:
   pull_request:
     types:
       - assigned
+      - synchronize
 
 jobs:
   apply_labels:
     name: Apply Labels
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - name: Assign Labels
+        run: |
           cat $GITHUB_EVENT_PATH
