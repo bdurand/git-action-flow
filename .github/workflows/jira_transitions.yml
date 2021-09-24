@@ -21,7 +21,10 @@ jobs:
         run: |
           echo $search_string
           echo $patterns
-          run: echo "::set-output name=issue::ENG-1"
+          echo $search_string | grep -Eoi -e $patterns
+          echo $search_string | grep -Poi -e $patterns
+          echo $search_string | grep -Eoi -m 1 -e $patterns
+          echo "::set-output name=issue::ENG-1"
       - name: Login
         if: steps.find_jira_issue.outputs.issue
         uses: atlassian/gajira-login@v2.0.0
