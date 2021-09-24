@@ -19,12 +19,10 @@ jobs:
           search_string: ${{ github.event.pull_request.head.ref }} ${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}
           patterns: \b(ENG)-([0-9]+)
         run: |
-          echo $search_string
-          echo $patterns
-          echo $search_string | grep -Eoi -e $patterns
-          echo $search_string | grep -Poi -e $patterns
-          echo $search_string | grep -Eoi -m 1 -e $patterns
-          echo "::set-output name=issue::ENG-1"
+          issue=$(echo $search_string | grep -Eoi -e $patterns)
+          if [ "$issue" != "" ]; then
+            echo "::set-output name=issue::${issue}"
+          fi
       - name: Login
         if: steps.find_jira_issue.outputs.issue
         uses: atlassian/gajira-login@v2.0.0
