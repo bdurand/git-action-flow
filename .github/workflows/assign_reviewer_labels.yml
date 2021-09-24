@@ -2,8 +2,7 @@ name: Assign Reviewer Labels
 on:
   pull_request:
     types:
-      - assigned
-      - synchronize
+      - review_requested
 
 jobs:
   apply_labels:
