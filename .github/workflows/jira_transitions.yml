@@ -8,11 +8,10 @@ on:
 
 jobs:
   build:
-    # if: contains(github.event.label.name, 'QA Ready')
+    if: contains(github.event.label.name, 'QA Ready')
     runs-on: ubuntu-latest
     name: Transition Jira Task From Labels
     steps:
-      - run: cat $GITHUB_EVENT_PATH
       - name: Find Jira Issue
         id: find_jira_issue
         env:
