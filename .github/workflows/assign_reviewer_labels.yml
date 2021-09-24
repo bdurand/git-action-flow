@@ -1,4 +1,5 @@
 name: Assign Labels
+
 on:
   pull_request:
     types:

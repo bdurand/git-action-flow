@@ -1,0 +1,37 @@
+name: Jira QA Ready
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - unlabeled
+
+jobs:
+  build:
+    if: contains(github.event.pull_request.labels.*.name, 'QA Ready')
+    runs-on: ubuntu-latest
+    name: Transition Jira Task To QA Ready
+    steps:
+    - name: Login
+      uses: atlassian/gajira-login@master
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+    - name: Find Jira Issue
+      id: find_jira_issue
+      uses: atlassian/gajira-find-issue-key@master
+      with:
+        from: branch
+    - name: Transition Issue To QA Ready
+      if: steps.find_jira_issue.outputs.issue && github.event.type == 'labeled'
+      uses: atlassian/gajira-transition@master
+      with:
+        issue: ${{ steps.find_jira_issue.outputs.issue }}
+        transition: "Done"
+    - name: Transition Issue To In Progress
+      if: steps.find_jira_issue.outputs.issue
+      uses: atlassian/gajira-transition@master
+      with:
+        issue: ${{ steps.find_jira_issue.outputs.issue }}
+        transition: "In Progress"

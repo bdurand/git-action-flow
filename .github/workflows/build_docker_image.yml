@@ -1,4 +1,5 @@
 name: Build Docker Image
+
 on:
   push:
     branches:
@@ -19,7 +20,7 @@ concurrency: build_docker_image-${{ github.ref }}
 
 jobs:
   build_docker_image:
-    name: Build Docker Image If Requested
+    name: Build Docker Image If Needed
     runs-on: ubuntu-latest
     steps:
       # Detect if the pull request, branch, or tag should build the docker image.
