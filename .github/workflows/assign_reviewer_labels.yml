@@ -1,12 +1,12 @@
-name: Assign Reviewer Labels
+name: Assign Labels
 on:
   pull_request:
     types:
       - review_requested
 
 jobs:
-  apply_labels:
-    name: Apply Labels
+  assign_labels:
+    name: Assign Labels
     runs-on: ubuntu-latest
     steps:
       - name: Apply Database Review Label
