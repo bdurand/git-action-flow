@@ -1,4 +1,4 @@
-name: Jira QA Ready
+name: Jira Transitions
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ jobs:
   build:
     # if: contains(github.event.pull_request.labels.*.name, 'QA Ready')
     runs-on: ubuntu-latest
-    name: Transition Jira Task To QA Ready
+    name: Transition Jira Task From Labels
     steps:
       - run: cat $GITHUB_EVENT_PATH
       - name: Login
@@ -26,7 +26,7 @@ jobs:
           string: ${{ github.event.ref }}
       - name: Transition Issue To QA Ready
         if: steps.find_jira_issue.outputs.issue && github.event.type == 'labeled'
-        uses: atlassian/gajira-transition@v2
+        uses: atlassian/gajira-transition@v2.0.2
         with:
           issue: ${{ steps.find_jira_issue.outputs.issue }}
           transition: "Done"
