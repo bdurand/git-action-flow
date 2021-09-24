@@ -21,18 +21,18 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
       - name: Find Jira Issue
         id: find_jira_issue
-        uses: atlassian/gajira-find-issue-key@master
+        uses: atlassian/gajira-find-issue-key@v2
         with:
           string: ${{ github.event.ref }}
       - name: Transition Issue To QA Ready
         if: steps.find_jira_issue.outputs.issue && github.event.type == 'labeled'
-        uses: atlassian/gajira-transition@master
+        uses: atlassian/gajira-transition@v2
         with:
           issue: ${{ steps.find_jira_issue.outputs.issue }}
           transition: "Done"
       - name: Transition Issue To In Progress
         if: steps.find_jira_issue.outputs.issue
-        uses: atlassian/gajira-transition@master
+        uses: atlassian/gajira-transition@v2
         with:
           issue: ${{ steps.find_jira_issue.outputs.issue }}
           transition: "In Progress"
