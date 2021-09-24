@@ -1,0 +1,24 @@
+name: Assign Labels
+on:
+  pull_request:
+    types:
+      - review_requested
+
+jobs:
+  assign_labels:
+    name: Assign Labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply Database Review Label
+        if: contains(github.event.pull_request.requested_reviewers.*.login, 'R167')
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["Database Review"]
+            })
+            console.log('Added "Database Review" label')
+
