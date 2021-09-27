@@ -24,6 +24,7 @@ jobs:
               base: branch
             }).then(response => {
               response.data.forEach(pullRequest => {
+                console.log(pullRequest)
                 pullRequest.labels.any(label => {
                   if (label.name == "QA Ready") {
                     github.pulls.updateBranch({
