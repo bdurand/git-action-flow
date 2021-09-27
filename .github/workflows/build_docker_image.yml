@@ -138,10 +138,7 @@ jobs:
           DOCKER_TAG: ${{ steps.set_docker_tags.outputs.docker_tags }}
         with:
           script: |
-            let body = ":computer: Docker image built with tags:"
-            process.env.DOCKER_TAG.split(',').forEach(tag => {
-              body += "\n* `" + tag + '`'
-            })
+            let body = ":computer: Docker image built with tags: *`" + process.env.DOCKER_TAG.split(',').join("`* *`") + "`*"
             github.issues.updateComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
