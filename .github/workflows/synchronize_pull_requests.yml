@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/github-script@v4
         with:
+          github-token: ${{ secrets.GIT_SYNC_TOKEN }}
           script: |
             const branch = context.ref.replace("refs/heads/", "")
             github.pulls.list({
