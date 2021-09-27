@@ -1,0 +1,40 @@
+name: Synchronize QA Ready Pull Requests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - sprint
+      - release
+
+jobs:
+  build_docker_images:
+    name: Request Pull Requests Rebuild Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v4
+        with:
+          script: |
+            const branch = context.ref.replace("refs/heads/", "")
+            github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              base: branch
+            }).then(response => {
+              response.data.forEach(pullRequest => {
+                pullRequest.labels.any(label => {
+                  if (label.name == "QA Ready") {
+                    github.pulls.updateBranch({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pull_number: pullRequest.number
+                    })
+                    console.log("Synchronized Pull Request " + pullRequest.number + " with " + branch)
+                    return
+                  }
+                })
+              })
+            })
+
