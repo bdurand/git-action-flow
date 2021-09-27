@@ -1,0 +1,28 @@
+name: Build Docker Image On Pull Requests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - sprint
+      - release
+      - "*"
+
+jobs:
+  build_docker_images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v4
+        with:
+          script: |
+            let pullRequests = await github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              draft: false,
+              labels: ["QA Ready"]
+            })
+            console.log(pullRequests)
+

@@ -10,8 +10,7 @@ jobs:
     name: Assign Labels
     runs-on: ubuntu-latest
     steps:
-      - name: Apply Database Review Label
-        if: contains(github.event.pull_request.requested_reviewers.*.login, 'R167')
+      - if: contains(github.event.pull_request.requested_reviewers.*.login, 'R167')
         uses: actions/github-script@v4
         with:
           script: |
