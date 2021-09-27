@@ -17,28 +17,36 @@ jobs:
         with:
           github-token: ${{ secrets.GIT_SYNC_TOKEN }}
           script: |
+            const pageSize = 100
             const branch = context.ref.replace("refs/heads/", "")
-            github.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: "open",
-              base: branch
-            }).then(response => {
-              response.data.forEach(pullRequest => {
-                if (pullRequest.draft) {
-                  return
-                }
-                pullRequest.labels.forEach(label => {
-                  if (label.name == "QA Ready") {
-                    github.pulls.updateBranch({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      pull_number: pullRequest.number
-                    })
-                    console.log("Synchronized Pull Request " + pullRequest.number + " with " + branch)
+            const updatePullRequests = function(page) {
+              github.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+                base: branch,
+                per_page: pageSize,
+                page: page
+              }).then(response => {
+                response.data.forEach(pullRequest => {
+                  if (pullRequest.draft) {
                     return
                   }
+                  pullRequest.labels.forEach(label => {
+                    if (label.name == "QA Ready") {
+                      github.pulls.updateBranch({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        pull_number: pullRequest.number
+                      })
+                      console.log("Synchronized Pull Request " + pullRequest.number + " with " + branch)
+                      return
+                    }
+                  })
                 })
+                if (response.data.length >= pageSize) {
+                  updatePullRequests(page + 1)
+                }
               })
-            })
-
+            }
+            updatePullRequests(1)
