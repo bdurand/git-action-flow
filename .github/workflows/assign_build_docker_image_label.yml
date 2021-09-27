@@ -17,12 +17,13 @@ jobs:
       - uses: actions/github-script@v4
         with:
           script: |
-            let pullRequests = await github.pulls.list({
+            console.log(context)
+            github.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: "open",
-              draft: false,
-              labels: ["QA Ready"]
+              base: "master"
+            }).then(response => {
+              console.log(response)
             })
-            console.log(pullRequests)
 
