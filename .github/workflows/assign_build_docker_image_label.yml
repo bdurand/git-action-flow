@@ -1,4 +1,4 @@
-name: Build Docker Image On Pull Requests
+name: Rebuild Docker Image On Open Pull Requests
 
 on:
   push:
@@ -11,13 +11,13 @@ on:
 
 jobs:
   build_docker_images:
-    name: Build Docker Images
+    name: Request Pull Requests Rebuild Docker Images
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v4
         with:
           script: |
-            console.log(context)
+            console.log(context.ref.replace("refs/heads/", ""))
             github.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
