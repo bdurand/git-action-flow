@@ -25,7 +25,7 @@ jobs:
             }).then(response => {
               response.data.forEach(pullRequest => {
                 console.log(pullRequest)
-                pullRequest.labels.any(label => {
+                pullRequest.labels.forEach(label => {
                   if (label.name == "QA Ready") {
                     github.pulls.updateBranch({
                       owner: context.repo.owner,
