@@ -17,10 +17,11 @@ jobs:
         with:
           script: |
             const branch = context.ref.replace("refs/heads/", "")
-            console.log(branch)
             github.pulls.list({
               owner: context.repo.owner,
-              repo: context.repo.repo
+              repo: context.repo.repo,
+              state: "open",
+              base: branch
             }).then(response => {
               console.log(response)
             })
