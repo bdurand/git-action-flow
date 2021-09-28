@@ -30,18 +30,20 @@ jobs:
                   }
                   const pullRequestText = pullRequest.head.ref + " " + pullRequest.title + " " + pullRequest.body
                   const jiraIssuePattern = new RegExp("\\b" + payload.jira_issue + "\\b")
+                  console.log(pullRequestText, jiraIssuePattern)
                   if (!pullRequestText.match(jiraIssuePattern)) {
                     return
                   }
                   const hasQAReadyLabel = pullRequest.labels.some(label => {
                     return label.name == "QA Ready"
                   })
+                  console.log(payload.status, hasQAReadyLabel)
                   if (hasQAReadyLabel) {
-                    if (payload.status !== "Done") {
+                    if (payload.status !== "QA Ready") {
                       console.log("Add label QA Ready to pull request " + pullRequest.number)
                     }
                   } else {
-                    if (payload.status === "Done") {
+                    if (payload.status === "QA Ready") {
                       console.log("Remove label QA Ready from pull request " + pullRequest.number)
                     }
                   }
