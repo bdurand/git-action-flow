@@ -14,7 +14,7 @@ jobs:
         with:
           github-token: ${{ secrets.GIT_SYNC_TOKEN }}
           script: |
-            console.log(context.payload.client_payload)
+            const payload = context.payload.client_payload
             const pageSize = 100
             const updatePullRequestLabels = function(page) {
               github.pulls.list({
@@ -29,13 +29,22 @@ jobs:
                     return
                   }
                   console.log(pullRequest)
+                  const pullRequestText = pullRequest.head.ref + " " + pullRequest.title + " " + pullRequest.body
+                  if (!pullRequestText.match(new RegExp("\\b" + payload.jira_issue + "\\b")) {
+                    return
+                  }
                   const hasQAReadyLabel = pullRequest.labels.some(label => {
                     return label.name == "QA Ready"
                   })
                   if (hasQAReadyLabel) {
+                    if (payload.status !== "Done") {
+                      console.log("Add label QA Ready to pull request " + pullRequest.number)
+                    }
                   } else {
+                    if (payload.status === "Done") {
+                      console.log("Remove label QA Ready from pull request " + pullRequest.number)
+                    }
                   }
-                  console.log(pullRequest.number + " hasQAReadyLabel = " + hasQAReadyLabel)
                 })
                 if (response.data.length >= pageSize) {
                   updatePullRequestLabels(page + 1)
