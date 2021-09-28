@@ -14,7 +14,7 @@ jobs:
         with:
           github-token: ${{ secrets.GIT_SYNC_TOKEN }}
           script: |
-            console.log(context)
+            console.log(context.payload.client_payload)
             const pageSize = 100
             const updatePullRequestLabels = function(page) {
               github.pulls.list({
@@ -28,9 +28,13 @@ jobs:
                   if (pullRequest.draft) {
                     return
                   }
+                  console.log(pullRequest)
                   const hasQAReadyLabel = pullRequest.labels.some(label => {
                     return label.name == "QA Ready"
                   })
+                  if (hasQAReadyLabel) {
+                  } else {
+                  }
                   console.log(pullRequest.number + " hasQAReadyLabel = " + hasQAReadyLabel)
                 })
                 if (response.data.length >= pageSize) {
