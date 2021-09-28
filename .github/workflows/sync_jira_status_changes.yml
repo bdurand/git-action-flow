@@ -28,11 +28,10 @@ jobs:
                   if (pullRequest.draft) {
                     return
                   }
-                  console.log(pullRequest)
                   const pullRequestText = pullRequest.head.ref + " " + pullRequest.title + " " + pullRequest.body
-                  //if (!pullRequestText.match(new RegExp("\\b" + payload.jira_issue + "\\b")) {
-                  //  return
-                  //}
+                  if (!pullRequestText.match(new RegExp("\\b" + payload.jira_issue + "\\b")) {
+                    return
+                  }
                   const hasQAReadyLabel = pullRequest.labels.some(label => {
                     return label.name == "QA Ready"
                   })

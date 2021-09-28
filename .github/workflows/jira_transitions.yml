@@ -34,7 +34,7 @@ jobs:
         uses: atlassian/gajira-transition@v2.0.2
         with:
           issue: ${{ steps.find_jira_issue.outputs.issue }}
-          transition: "Done"
+          transition: "QA Ready"
       - name: Transition Issue To In Progress
         if: steps.find_jira_issue.outputs.issue && github.event.action == 'unlabeled'
         uses: atlassian/gajira-transition@v2.0.2
