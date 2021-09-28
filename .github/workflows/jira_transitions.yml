@@ -30,7 +30,7 @@ jobs:
         if: steps.find_jira_issue.outputs.issue
         run: |
           url="${JIRA_BASE_URL}/rest/api/2/issue/${{ steps.find_jira_issue.outputs.issue }}?fields=status"
-          status=$(curl -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Content-Type: application/json" $url)
+          status=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Content-Type: application/json" $url | jq -r .name)
           echo $status
           echo "::set-output name=status::${issue}"
      # - name: Transition Issue To QA Ready
