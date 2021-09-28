@@ -38,12 +38,24 @@ jobs:
                     return label.name == "QA Ready"
                   })
                   console.log(payload.status, hasQAReadyLabel)
-                  if (hasQAReadyLabel) {
-                    if (payload.status !== "QA Ready") {
+                  if (payload.status === "QA Ready") {
+                    if (!hasQAReadyLabel) {
+                      github.issues.addLabels({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: pullRequest.number,
+                        labels: ["QA Ready"]
+                      })
                       console.log("Add label QA Ready to pull request " + pullRequest.number)
                     }
                   } else {
-                    if (payload.status === "QA Ready") {
+                    if (hasQAReadyLabel) {
+                      github.issues.removeLabel({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: pullRequest.number,
+                        name: "QA Ready"
+                      })
                       console.log("Remove label QA Ready from pull request " + pullRequest.number)
                     }
                   }
