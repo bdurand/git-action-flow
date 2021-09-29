@@ -51,7 +51,6 @@ jobs:
             echo "::set-output name=status_name::${new_status}"
           fi
       - name: Transition Issue
-        id: get_new_status
         if: steps.get_new_status.outputs.status_name
         run: |
           issue_key="${{ steps.find_jira_issue.outputs.issue }}"
