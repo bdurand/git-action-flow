@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Transition Jira Task From Labels
     env:
-      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+      JIRA_API_URL: ${{ secrets.JIRA_BASE_URL }}/rest/api/3
       JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
       JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
     steps:
@@ -30,30 +30,39 @@ jobs:
         id: jira_issue_status
         if: steps.find_jira_issue.outputs.issue
         run: |
-          url="${JIRA_BASE_URL}/rest/api/2/issue/${{ steps.find_jira_issue.outputs.issue }}?fields=status"
-          status=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Content-Type: application/json" $url | jq -r .fields.status.name)
-          echo "::set-output name=status::${status}"
-      - name: Transition Issue
+          url="${JIRA_API_URL}/issue/${{ steps.find_jira_issue.outputs.issue }}?fields=status"
+          status_response=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Accept: application/json" $url)
+          status_name=$(echo $status_response | jq -r .fields.status.name)
+          echo "::set-output name=status_name::${status_name}"
+      - name: Get New Status
+        id: get_new_status
         if: steps.find_jira_issue.outputs.issue
         run: |
           issue_key="${{ steps.find_jira_issue.outputs.issue }}"
-          issue_status="${{ steps.jira_issue_status.outputs.status }}"
+          issue_status="${{ steps.jira_issue_status.outputs.status_name }}"
           action="${{ github.event.action }}"
-          echo $issue_key $issue_status $action
           new_status=""
           if [ "$action" == "labeled" ]; then
             new_status="QA Ready"
           elif [ "$action" == "unlabeled" ]; then
             new_status="In Progress"
           fi
-          echo $new_status
           if [ "$new_status" != "" ] && [ "$new_status" != "$issue_status" ]; then
-            url="${JIRA_BASE_URL}/rest/api/2/issue/${{ steps.find_jira_issue.outputs.issue }}/transition"
-            payload="{\"transition\": {\"name\": \"${new_status}\"}}"
-            echo $url
-            echo $payload
-            curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X POST -H "Content-Type: application/json" --data $payload $url
+            echo "::set-output name=status_name::${new_status}"
           fi
+      - name: Transition Issue
+        id: get_new_status
+        if: steps.get_new_status.outputs.status_name
+        run: |
+          issue_key="${{ steps.find_jira_issue.outputs.issue }}"
+          new_status="${{ steps.get_new_status.outputs.status_name }}"
+          status_response=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Accept: application/json" ${JIRA_API_URL}/status)
+          status_id=$(echo $status_response | jq ".[] | select(.name==\"${new_status}\") | .id")
+          transition_url="${JIRA_API_URL}/issue/${{ steps.find_jira_issue.outputs.issue }}/transitions"
+          payload="{\"transition\": {\"id\": \"${status_id}\"}}"
+          echo $transition_url
+          echo $payload
+          curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data $payload $url
      # - name: Transition Issue To QA Ready
      #    if: steps.find_jira_issue.outputs.issue && github.event.action == 'labeled'
      #    uses: atlassian/gajira-transition@v2.0.2
