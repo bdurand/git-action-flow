@@ -65,5 +65,4 @@ jobs:
           transition_id=$(echo $transitions | jq ".transitions[] | select(.name==\"${transition_name}\") | .id")
           payload="{\"transition\": {\"id\": ${transition_id}}}"
           echo $payload
-          echo "curl -s -u credentials -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data $payload $transition_url"
-          curl -s -u $credentials -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data $payload $transition_url
+          echo $(curl -s -u $credentials -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data $payload $transition_url 2>&1)
