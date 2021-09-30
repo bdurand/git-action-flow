@@ -62,8 +62,8 @@ jobs:
           credentials="${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}"
           echo $transition_url
           transitions=$(curl -s -u $credentials -X GET -H "Accept: application/json" $transition_url)
+          echo $transitions
           transition_id=$(echo $transitions | jq ".transitions[] | select(.name==\"${transition_name}\") | .id")
           payload="{\"transition\": {\"id\": ${transition_id}}}"
           echo $payload
-          echo $transition_url
-          curl -i -s -u $credentials -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data $payload $transition_url
+          curl -i -s -u $credentials -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data "$payload" $transition_url
