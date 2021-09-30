@@ -34,31 +34,34 @@ jobs:
           status_response=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Accept: application/json" $url)
           status_name=$(echo $status_response | jq -r .fields.status.name)
           echo "::set-output name=status_name::${status_name}"
-      - name: Get New Status
-        id: get_new_status
+      - name: Get Expected Transition
+        id: get_expected_transition
         if: steps.find_jira_issue.outputs.issue
         run: |
           issue_key="${{ steps.find_jira_issue.outputs.issue }}"
           issue_status="${{ steps.jira_issue_status.outputs.status_name }}"
           action="${{ github.event.action }}"
           new_status=""
+          transition_name=""
           if [ "$action" == "labeled" ]; then
             new_status="QA Ready"
+            transition_name="QA Ready"
           elif [ "$action" == "unlabeled" ]; then
             new_status="In Progress"
+            transition_name="In Progress"
           fi
-          if [ "$new_status" != "" ] && [ "$new_status" != "$issue_status" ]; then
-            echo "::set-output name=status_name::${new_status}"
+          if [ "$transition_name" != "" ] && [ "$new_status" != "$issue_status" ]; then
+            echo "::set-output name=transition_name::${transition_name}"
           fi
       - name: Transition Issue
-        if: steps.get_new_status.outputs.status_name
+        if: steps.get_expected_transition.outputs.transition_name
         run: |
           issue_key="${{ steps.find_jira_issue.outputs.issue }}"
-          new_status="${{ steps.get_new_status.outputs.status_name }}"
-          status_response=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Accept: application/json" ${JIRA_API_URL}/status)
-          status_id=$(echo $status_response | jq ".[] | select(.name==\"${new_status}\") | .id")
+          transition_name="${{ steps.get_expected_transition.outputs.transition_name }}"
           transition_url="${JIRA_API_URL}/issue/${{ steps.find_jira_issue.outputs.issue }}/transitions"
-          payload="{\"transition\": {\"id\": ${status_id}}}"
-          echo $payload
           echo $transition_url
+          transitions=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Accept: application/json" $transition_url)
+          transition_id=$(echo $transitions | jq ".transitions[] | select(.name==\"${transition_name}\") | .id")
+          payload="{\"transition\": {\"id\": ${transition_id}}}"
+          echo $payload
           curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data $payload $url
