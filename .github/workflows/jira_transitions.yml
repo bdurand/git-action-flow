@@ -11,6 +11,10 @@ jobs:
     if: contains(github.event.label.name, 'QA Ready')
     runs-on: ubuntu-latest
     name: Transition Jira Task From Labels
+    env:
+      JIRA_API_URL: ${{ secrets.JIRA_BASE_URL }}/rest/api/3
+      JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
     steps:
       - name: Find Jira Issue
         id: find_jira_issue
@@ -18,26 +22,46 @@ jobs:
           search_string: ${{ github.event.pull_request.head.ref }} ${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}
           patterns: \b(ENG)-([0-9]+)
         run: |
-          issue=$(echo $search_string | grep -Eoi -e $patterns)
+          issue=$(echo $search_string | grep -Eoi -e $patterns || true)
           if [ "$issue" != "" ]; then
             echo "::set-output name=issue::${issue}"
           fi
-      - name: Login
+      - name: Get Issue Status
+        id: jira_issue_status
         if: steps.find_jira_issue.outputs.issue
-        uses: atlassian/gajira-login@v2.0.0
-        env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-      - name: Transition Issue To QA Ready
-        if: steps.find_jira_issue.outputs.issue && github.event.action == 'labeled'
-        uses: atlassian/gajira-transition@v2.0.2
-        with:
-          issue: ${{ steps.find_jira_issue.outputs.issue }}
-          transition: "Done"
-      - name: Transition Issue To In Progress
-        if: steps.find_jira_issue.outputs.issue && github.event.action == 'unlabeled'
-        uses: atlassian/gajira-transition@v2.0.2
-        with:
-          issue: ${{ steps.find_jira_issue.outputs.issue }}
-          transition: "In Progress"
+        run: |
+          url="${JIRA_API_URL}/issue/${{ steps.find_jira_issue.outputs.issue }}?fields=status"
+          status_response=$(curl -s -u ${JIRA_USER_EMAIL}:${JIRA_API_TOKEN} -X GET -H "Accept: application/json" $url)
+          status_name=$(echo $status_response | jq -r .fields.status.name)
+          echo "::set-output name=status_name::${status_name}"
+      - name: Get Expected Transition
+        id: get_expected_transition
+        if: steps.find_jira_issue.outputs.issue
+        run: |
+          issue_key="${{ steps.find_jira_issue.outputs.issue }}"
+          issue_status="${{ steps.jira_issue_status.outputs.status_name }}"
+          action="${{ github.event.action }}"
+          new_status=""
+          transition_name=""
+          if [ "$action" == "labeled" ]; then
+            new_status="QA Ready"
+            transition_name="QA Ready"
+          elif [ "$action" == "unlabeled" ]; then
+            new_status="In Progress"
+            transition_name="In Progress"
+          fi
+          if [ "$transition_name" != "" ] && [ "$new_status" != "$issue_status" ]; then
+            echo "::set-output name=transition_name::${transition_name}"
+          fi
+      - name: Transition Issue
+        if: steps.get_expected_transition.outputs.transition_name
+        run: |
+          issue_key="${{ steps.find_jira_issue.outputs.issue }}"
+          transition_name="${{ steps.get_expected_transition.outputs.transition_name }}"
+          transition_url="${JIRA_API_URL}/issue/${{ steps.find_jira_issue.outputs.issue }}/transitions"
+          credentials="${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}"
+          transitions=$(curl -s -u $credentials -X GET -H "Accept: application/json" $transition_url)
+          transition_id=$(echo $transitions | jq ".transitions[] | select(.name==\"${transition_name}\") | .id")
+          payload="{\"transition\": {\"id\": ${transition_id}}}"
+          echo "Transition issue ${issue_key} to ${transition_name}"
+          curl -s -u $credentials -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data "$payload" $transition_url

@@ -1,0 +1,66 @@
+name: Sync Jira Status Changes
+
+on:
+  repository_dispatch:
+    types:
+      - synchronize_jira
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Transition Jira Task From Labels
+    steps:
+      - uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GIT_SYNC_TOKEN }}
+          script: |
+            const payload = context.payload.client_payload
+            const pageSize = 100
+            const updatePullRequestLabels = function(page) {
+              github.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+                per_page: pageSize,
+                page: page
+              }).then(response => {
+                response.data.forEach(pullRequest => {
+                  if (pullRequest.draft) {
+                    return
+                  }
+                  const pullRequestText = pullRequest.head.ref + " " + pullRequest.title + " " + pullRequest.body
+                  const jiraIssuePattern = new RegExp("\\b" + payload.jira_issue + "\\b")
+                  if (!pullRequestText.match(jiraIssuePattern)) {
+                    return
+                  }
+                  const hasQAReadyLabel = pullRequest.labels.some(label => {
+                    return label.name == "QA Ready"
+                  })
+                  if (payload.status === "QA Ready") {
+                    if (!hasQAReadyLabel) {
+                      github.issues.addLabels({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: pullRequest.number,
+                        labels: ["QA Ready"]
+                      })
+                      console.log("Add label QA Ready to pull request " + pullRequest.number)
+                    }
+                  } else {
+                    if (hasQAReadyLabel) {
+                      github.issues.removeLabel({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: pullRequest.number,
+                        name: "QA Ready"
+                      })
+                      console.log("Remove label QA Ready from pull request " + pullRequest.number)
+                    }
+                  }
+                })
+                if (response.data.length >= pageSize) {
+                  updatePullRequestLabels(page + 1)
+                }
+              })
+            }
+            updatePullRequestLabels(1)
