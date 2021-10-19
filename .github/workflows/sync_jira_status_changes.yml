@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Transition Jira Task From Labels
+    name: Sync Pull Request Labels With Jira
     steps:
       - uses: actions/github-script@v4
         with:
@@ -43,8 +43,11 @@ jobs:
                         repo: context.repo.repo,
                         issue_number: pullRequest.number,
                         labels: ["QA Ready"]
+                      }).then(resp => {
+                        console.log("Add label QA Ready to pull request " + pullRequest.number)
+                      }).catch(err => {
+                        console.log(err)
                       })
-                      console.log("Add label QA Ready to pull request " + pullRequest.number)
                     }
                   } else {
                     if (hasQAReadyLabel) {
@@ -53,8 +56,11 @@ jobs:
                         repo: context.repo.repo,
                         issue_number: pullRequest.number,
                         name: "QA Ready"
+                      }).then(resp => {
+                        console.log("Remove label QA Ready from pull request " + pullRequest.number)
+                      }).catch(err => {
+                        console.log(err)
                       })
-                      console.log("Remove label QA Ready from pull request " + pullRequest.number)
                     }
                   }
                 })
